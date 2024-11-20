@@ -18,6 +18,7 @@ to_csv()
 	SOURCE_FILE="$1"
 	echo "Building ${TARGET_DIR}/${SOURCE_FILE}${FILENAME_SUFFIX}.csv"
 	java -jar /saxon.jar \
+		"-ext:off" \
 		"-s:source/${SOURCE_FILE}.xml" \
 		"-xsl:xslt/findings2csv.xsl" \
 		"-o:${TARGET_DIR}/${SOURCE_FILE}${FILENAME_SUFFIX}.csv" \
@@ -29,6 +30,7 @@ to_html()
 	SOURCE_FILE="$1"
 	echo "Building ${TARGET_DIR}/${SOURCE_FILE}${FILENAME_SUFFIX}.html"
 	java -jar /saxon.jar \
+		"-ext:off" \
 		"-s:source/${SOURCE_FILE}.xml" \
 		"-xsl:xslt/generate_html_report.xsl" \
 		"-o:${TARGET_DIR}/${SOURCE_FILE}${FILENAME_SUFFIX}.html" \
@@ -41,6 +43,7 @@ to_fo()
 	SOURCE_FILE="$2"
 	echo "Building ${TARGET_DIR}/${SOURCE_FILE}${FILENAME_SUFFIX}.fo"
 	java -jar /saxon.jar \
+		"-ext:off" \
 		"-s:source/${SOURCE_FILE}.xml" \
 		"-xsl:xslt/generate_${DOC_TYPE}.xsl" \
 		"-o:${TARGET_DIR}/${SOURCE_FILE}${FILENAME_SUFFIX}.fo" \
