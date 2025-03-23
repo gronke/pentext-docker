@@ -560,7 +560,6 @@ def refresh_labels(doc, root, labels_element, extra_labels, level):
 		labels_element = doc.createElement("labels")
 		root.appendChild(doc.createTextNode(INDENT_CHARACTER * level))
 		root.appendChild(labels_element)
-		root.appendChild(doc.createTextNode("\n"))
 	while labels_element.hasChildNodes():
 		labels_element.removeChild(labels_element.firstChild)
 	for label_title in extra_labels:
@@ -940,10 +939,9 @@ class NonFinding(ProjectIssuePentextXMLFile):
 		root = doc.createElement("non-finding");
 		root.setAttribute("id", self.slug)
 		root.setAttribute("number", str(self.iid))
-		root.appendChild(doc.createTextNode("\n"))
-
 		level = 1
 
+		root.appendChild(doc.createTextNode("\n" + (INDENT_CHARACTER * level)))
 		title = doc.createElement("title");
 		title.appendChild(doc.createTextNode(self.title))
 		root.appendChild(title)
@@ -959,7 +957,7 @@ class NonFinding(ProjectIssuePentextXMLFile):
 				level=level
 			)
 
-		content_nodes = markdown_to_dom(self.description, self.iid, level=level)
+		content_nodes = markdown_to_dom(self.description, self.iid, level=0)
 		while len(content_nodes):
 			node = content_nodes[0]
 			root.appendChild(node)
