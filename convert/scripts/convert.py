@@ -251,8 +251,11 @@ def _remove_hidden_links(html: str) -> str:
 def _dom_to_html(htmlTree: xml.etree.ElementTree) -> str:
 	return xml.etree.ElementTree.tostring(htmlTree).decode("UTF-8")
 
+def _strip(txt: str) -> str:
+	return txt.strip('\r\n\t ')
+
 def _html_to_dom(html: str) -> xml.etree.ElementTree.Element:
-	_html = f"<root>\n{html.strip()}\n</root>" # can parse only one root element
+	_html = f"<root>\n{_strip(html)}\n</root>" # can parse only one root element
 	error = None
 	try:
 		return xml.etree.ElementTree.fromstring(_html)
@@ -290,6 +293,7 @@ def markdown(
 	# pre-processing
 	markdown_text = _resolve_internal_links(markdown_text)
 	markdown_text = _remove_gitlab_image_dimensions(markdown_text)
+	markdown_text = _strip(markdown_text)
 	if not options.highlight_syntax:
 		markdown_text = _remove_syntax_highlighting(markdown_text)
 	if re.search(r"[^A-Za-z0-9_\-\\\/]", str(id_prefix)) is not None:
