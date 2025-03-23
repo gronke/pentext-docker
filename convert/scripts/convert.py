@@ -429,8 +429,12 @@ class PentextXMLFile:
 		prettyxml = None
 		try:
 			prettyxml = to_prettyxml(self.processed_doc)
-		except Exception:
-			logging.error(f"failed to obtain XML content of {self.relative_path}")
+		except Exception as err:
+			err_msg = "\n".join([f"  {line}" for line in f"{err}".splitlines()])
+			logging.error(
+				f"failed to obtain XML content of {self.relative_path}"
+				f"\n{err_msg}"
+			)
 			return
 		with open(self.relative_path, "w", encoding="UTF-8") as file:
 			logging.info(f"writing {self.relative_path}")
