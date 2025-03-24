@@ -109,6 +109,8 @@ LABELS = list(filter(
 	lambda x: len(x),
 	os.environ.get("MATCH_LABELS", "").split(",")
 ))
+# or separator |
+LABELS = [label.split("|") for label in LABELS]
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -1354,11 +1356,11 @@ class PentextProject(gitlab.v4.objects.projects.Project):
 
 	@property
 	def findings(self):
-		return self.get_report_assets(Finding, labels=["finding", *LABELS])
+		return self.get_report_assets(Finding, labels=[["finding"], *LABELS])
 
 	@property
 	def non_findings(self):
-		return self.get_report_assets(NonFinding, labels=["non-finding", *LABELS])
+		return self.get_report_assets(NonFinding, labels=[["non-finding"], *LABELS])
 
 	def get_report_assets(self, obj_cls, labels=LABELS, milestone=MILESTONE, **kwargs):
 		_obj_cls = self.issues._obj_cls
@@ -1366,27 +1368,36 @@ class PentextProject(gitlab.v4.objects.projects.Project):
 		for issue in self.issues.list(
 			state="opened",
 			milestone=milestone,
-			labels=labels,
+			#labels=labels,
 			**kwargs,
 			iterator=True
 		):
-			yield issue
+			if self._match_labels(issue.labels, labels):
+				yield issue
 		self.issues._obj_cls = _obj_cls
 
 	@staticmethod
 	def __simplify(text: str) -> str:
 		return text.lower().replace(" ", "").strip().strip(":#")
 
+	@staticmethod
+	def _match_labels(given: typing.List[str], wanted: typing.Optional[typing.List[typing.List[str]]]) -> bool:
+		if wanted is None:
+			return True
+		for wanted_label_options in wanted: # AND
+			ok = False
+			for wanted_label in wanted_label_options: # OR
+				if wanted_label in given:
+					ok = True
+					break
+			if not ok:
+				return False
+		return True
+
 	def _match_milestone_and_labels(self, issue):
 		if len(issue.labels) and len(LABELS):
 			# always accept issues without any label
-			match = False
-			for label in LABELS:
-				if label in issue.labels:
-					match = True
-					break
-			if match is False:
-				# skip when issue has labels, but none matches the input query
+			if not self._match_labels(issue.labels, LABELS):
 				return False
 		if MILESTONE is not None:
 			# always accept issues without milestone
